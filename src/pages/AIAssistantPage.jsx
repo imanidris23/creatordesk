@@ -106,6 +106,7 @@ export default function AIAssistantPage({ samples, content }) {
 
       // Get Gemini's response
       const reply = await sendAIMessage(message);
+      console.log("RAW GEMINI RESPONSE:", JSON.stringify(reply));
 
       const assistantMessage = {
         role: "assistant",

@@ -76,7 +76,8 @@
 .ai-chat {
   display: flex;
   flex-direction: column;
-  min-height: 520px;
+  height: 650px;
+  min-height: 0;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -88,9 +89,13 @@
   flex-direction: column;
   gap: 24px;
   flex: 1;
+  min-height: 0;
   min-width: 0;
   padding: 28px;
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 /* =========================
@@ -372,11 +377,7 @@
 ========================= */
 
 .ai-input-area {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  padding: 18px;
-  border-top: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
 .ai-input-area textarea {
@@ -431,12 +432,9 @@
    DISCLAIMER
 ========================= */
 
+/* Keep the disclaimer visible */
 .ai-disclaimer {
-  margin: 0;
-  padding: 0 16px 14px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 12px;
+  flex-shrink: 0;
 }
 
 /* =========================
@@ -516,4 +514,12 @@
   .ai-input-area {
     padding: 12px;
   }
+}
+
+.ai-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--canvas);
+  padding: 8px 0;
 }
