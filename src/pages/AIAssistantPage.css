@@ -1,14 +1,21 @@
+/* =========================
+   AI PAGE
+========================= */
+
 .ai-page {
   display: flex;
   flex-direction: column;
   gap: 24px;
   max-width: 1000px;
+  width: 100%;
+  min-width: 0;
 }
 
 .ai-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
 .ai-title {
@@ -25,8 +32,12 @@
 
 .ai-header p {
   color: var(--muted);
-  margin-top: 8px;
+  margin: 8px 0 0;
 }
+
+/* =========================
+   STATS
+========================= */
 
 .ai-stats {
   display: flex;
@@ -35,6 +46,7 @@
 
 .ai-stats div {
   flex: 1;
+  min-width: 0;
   padding: 18px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -57,28 +69,37 @@
   color: var(--ink);
 }
 
+/* =========================
+   CHAT CONTAINER
+========================= */
+
 .ai-chat {
   display: flex;
   flex-direction: column;
-  min-height: 480px;
+  min-height: 520px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
 }
 
 .ai-messages {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
   flex: 1;
-  padding: 24px;
+  min-width: 0;
+  padding: 28px;
   overflow-y: auto;
 }
 
+/* =========================
+   WELCOME SCREEN
+========================= */
+
 .ai-welcome {
   margin: auto;
-  max-width: 420px;
+  max-width: 440px;
   text-align: center;
   color: var(--muted);
 }
@@ -89,13 +110,24 @@
 
 .ai-welcome h2 {
   color: var(--ink);
-  margin-bottom: 8px;
+  margin: 14px 0 8px;
+  font-size: 21px;
 }
+
+.ai-welcome p {
+  line-height: 1.7;
+}
+
+/* =========================
+   CHAT MESSAGES
+========================= */
 
 .ai-message {
   display: flex;
-  gap: 12px;
   align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
 }
 
 .ai-message.user {
@@ -107,27 +139,224 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   background: var(--active-bg);
   color: var(--purple);
 }
 
+.ai-message.assistant .ai-message-icon {
+  background: var(--active-bg);
+  color: var(--purple);
+}
+
+.ai-message.user .ai-message-icon {
+  background: var(--hover-bg);
+  color: var(--ink);
+}
+
 .ai-message-text {
-  max-width: 75%;
-  padding: 12px 16px;
-  border-radius: 14px;
+  min-width: 0;
+  max-width: 82%;
+  padding: 16px 19px;
+  border-radius: 16px;
   background: var(--canvas);
   color: var(--ink);
-  white-space: pre-wrap;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.75;
   overflow-wrap: anywhere;
 }
 
 .ai-message.user .ai-message-text {
   background: var(--active-bg);
+  border-top-right-radius: 5px;
+  white-space: pre-wrap;
 }
+
+.ai-message.assistant .ai-message-text {
+  border-top-left-radius: 5px;
+  white-space: normal;
+}
+
+/* =========================
+   MARKDOWN HEADINGS
+========================= */
+
+.ai-message-text h1,
+.ai-message-text h2,
+.ai-message-text h3,
+.ai-message-text h4 {
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.ai-message-text h1 {
+  font-size: 21px;
+  margin: 20px 0 12px;
+}
+
+.ai-message-text h2 {
+  font-size: 18px;
+  margin: 20px 0 10px;
+}
+
+.ai-message-text h3 {
+  font-size: 16px;
+  margin: 16px 0 8px;
+}
+
+.ai-message-text h4 {
+  font-size: 14px;
+  margin: 14px 0 8px;
+}
+
+/* Remove unnecessary first and last spacing */
+
+.ai-message-text > *:first-child {
+  margin-top: 0;
+}
+
+.ai-message-text > *:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================
+   MARKDOWN TEXT
+========================= */
+
+.ai-message-text p {
+  margin: 10px 0;
+}
+
+.ai-message-text strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.ai-message-text em {
+  color: var(--muted);
+}
+
+.ai-message-text a {
+  color: var(--purple);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+/* =========================
+   MARKDOWN LISTS
+========================= */
+
+.ai-message-text ul,
+.ai-message-text ol {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+
+.ai-message-text li {
+  margin: 7px 0;
+  padding-left: 4px;
+}
+
+.ai-message-text li > p {
+  margin: 4px 0;
+}
+
+/* =========================
+   BLOCKQUOTES
+========================= */
+
+.ai-message-text blockquote {
+  margin: 14px 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--purple);
+  background: var(--hover-bg);
+  border-radius: 0 10px 10px 0;
+}
+
+.ai-message-text blockquote p {
+  margin: 0;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.ai-message-text table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 14px 0;
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+.ai-message-text th,
+.ai-message-text td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: left;
+  min-width: 100px;
+  white-space: normal;
+}
+
+.ai-message-text th {
+  background: var(--hover-bg);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.ai-message-text tr:nth-child(even) {
+  background: var(--hover-bg);
+}
+
+/* =========================
+   CODE BLOCKS
+========================= */
+
+.ai-message-text pre {
+  max-width: 100%;
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.ai-message-text code {
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--hover-bg);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.ai-message-text pre code {
+  padding: 0;
+  background: transparent;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+
+/* =========================
+   DIVIDERS
+========================= */
+
+.ai-message-text hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 18px 0;
+}
+
+/* =========================
+   TYPING INDICATOR
+========================= */
 
 .ai-typing {
   display: flex;
@@ -135,26 +364,36 @@
   gap: 10px;
   color: var(--muted);
   font-size: 14px;
+  padding: 4px 0;
 }
+
+/* =========================
+   INPUT AREA
+========================= */
 
 .ai-input-area {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  padding: 16px;
+  padding: 18px;
   border-top: 1px solid var(--line);
 }
 
 .ai-input-area textarea {
   flex: 1;
-  resize: none;
+  min-width: 0;
+  resize: vertical;
+  min-height: 48px;
+  max-height: 140px;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 14px;
+  padding: 13px 15px;
   background: var(--canvas);
   color: var(--ink);
   font: inherit;
+  font-size: 14px;
   outline: none;
+  transition: border-color 0.2s ease;
 }
 
 .ai-input-area textarea:focus {
@@ -165,19 +404,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
   border: none;
-  border-radius: 12px;
+  border-radius: 13px;
   background: var(--purple);
   color: white;
   cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ai-input-area button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .ai-input-area button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* =========================
+   DISCLAIMER
+========================= */
 
 .ai-disclaimer {
   margin: 0;
@@ -187,19 +439,9 @@
   font-size: 12px;
 }
 
-@media (max-width: 600px) {
-  .ai-stats {
-    gap: 10px;
-  }
-
-  .ai-stats div {
-    padding: 12px;
-  }
-
-  .ai-message-text {
-    max-width: 85%;
-  }
-}
+/* =========================
+   NEW CHAT BUTTON
+========================= */
 
 .ai-new-chat {
   display: flex;
@@ -225,117 +467,53 @@
   cursor: not-allowed;
 }
 
-/* Gemini Markdown formatting */
+/* =========================
+   RESPONSIVE
+========================= */
 
-.ai-message-text {
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-}
+@media (max-width: 600px) {
+  .ai-header {
+    align-items: flex-start;
+  }
 
-.ai-message-text > *:first-child {
-  margin-top: 0;
-}
+  .ai-title h1 {
+    font-size: 21px;
+  }
 
-.ai-message-text > *:last-child {
-  margin-bottom: 0;
-}
+  .ai-stats {
+    gap: 10px;
+  }
 
-.ai-message-text h1,
-.ai-message-text h2,
-.ai-message-text h3,
-.ai-message-text h4 {
-  color: var(--ink);
-  margin: 18px 0 10px;
-  line-height: 1.4;
-}
+  .ai-stats div {
+    padding: 12px;
+  }
 
-.ai-message-text h1 {
-  font-size: 21px;
-}
+  .ai-chat {
+    min-height: 500px;
+    border-radius: 14px;
+  }
 
-.ai-message-text h2 {
-  font-size: 19px;
-}
+  .ai-messages {
+    padding: 16px;
+    gap: 20px;
+  }
 
-.ai-message-text h3 {
-  font-size: 16px;
-}
+  .ai-message {
+    gap: 8px;
+  }
 
-.ai-message-text p {
-  margin: 9px 0;
-}
+  .ai-message-icon {
+    width: 32px;
+    height: 32px;
+  }
 
-.ai-message-text strong {
-  font-weight: 700;
-  color: var(--ink);
-}
+  .ai-message-text {
+    max-width: calc(100% - 40px);
+    padding: 12px 14px;
+    font-size: 13px;
+  }
 
-.ai-message-text em {
-  color: var(--muted);
-}
-
-.ai-message-text ul,
-.ai-message-text ol {
-  padding-left: 23px;
-  margin: 10px 0;
-}
-
-.ai-message-text li {
-  margin: 6px 0;
-  padding-left: 3px;
-}
-
-.ai-message-text blockquote {
-  margin: 12px 0;
-  padding: 10px 14px;
-  border-left: 3px solid var(--purple);
-  background: var(--hover-bg);
-  border-radius: 0 8px 8px 0;
-}
-
-.ai-message-text hr {
-  border: none;
-  border-top: 1px solid var(--line);
-  margin: 16px 0;
-}
-
-.ai-message-text table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 12px 0;
-  font-size: 13px;
-  display: block;
-  overflow-x: auto;
-}
-
-.ai-message-text th,
-.ai-message-text td {
-  border: 1px solid var(--line);
-  padding: 9px 11px;
-  text-align: left;
-}
-
-.ai-message-text th {
-  background: var(--hover-bg);
-  font-weight: 700;
-}
-
-.ai-message-text pre {
-  background: var(--canvas);
-  padding: 12px;
-  border-radius: 9px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-}
-
-.ai-message-text code {
-  background: var(--hover-bg);
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.9em;
-}
-
-.ai-message-text pre code {
-  background: transparent;
-  padding: 0;
+  .ai-input-area {
+    padding: 12px;
+  }
 }
