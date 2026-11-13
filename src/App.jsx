@@ -23,6 +23,7 @@ import {
   Palette,
   Home,
   UsersRound,
+  Sparkles,
 } from "lucide-react";
 
 import { useAuth } from "./context/AuthContext.jsx";
@@ -45,6 +46,7 @@ import WithdrawalsPage from "./pages/WithdrawalsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AppearancePage from "./pages/AppearancePage.jsx";
 import CollaboratorsPage from "./pages/CollaboratorsPage.jsx";
+import AIAssistantPage from "./pages/AIAssistantPage.jsx";
 
 // Forms
 import SampleForm from "./forms/SampleForm.jsx";
@@ -64,6 +66,7 @@ const sidebarNavigation = [
   { name: "Calendar", path: "/calendar", icon: CalendarDays },
   { name: "Withdrawals", path: "/withdrawals", icon: Wallet },
   { name: "Appearance", path: "/appearance", icon: Palette },
+  { name: "AI Assistant", path: "/ai", icon: Sparkles },
 ];
 
 // Mobile bottom navigation
@@ -543,6 +546,11 @@ function AppLayout() {
                   onExport={exportSamples}
                 />
               }
+            />
+
+            <Route
+              path="/ai"
+              element={<AIAssistantPage samples={samples} content={content} />}
             />
 
             <Route
