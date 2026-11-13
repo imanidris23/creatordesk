@@ -28,6 +28,7 @@ export default function AnalyticsPage({ samples, content }) {
     .slice(0, 5);
 
   // Group video performance by product
+
   const topPerformingProducts = samples
     .map((sample) => {
       const linkedVideos = content.filter(
@@ -51,8 +52,7 @@ export default function AnalyticsPage({ samples, content }) {
       }
 
       return b.totalVideos - a.totalVideos;
-    })
-    .slice(0, 5);
+    });
 
   return (
     <div className="page">
