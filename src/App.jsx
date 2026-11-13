@@ -44,6 +44,7 @@ import CalendarPage from "./pages/CalendarPage.jsx";
 import WithdrawalsPage from "./pages/WithdrawalsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AppearancePage from "./pages/AppearancePage.jsx";
+import CollaboratorsPage from "./pages/CollaboratorsPage.jsx";
 
 // Forms
 import SampleForm from "./forms/SampleForm.jsx";
@@ -611,12 +612,7 @@ function AppLayout() {
             <Route
               path="/collaborators"
               element={
-                <div className="page-title">
-                  <div>
-                    <h1>Collaborators</h1>
-                    <p>Manage your brand partnerships and deliverables.</p>
-                  </div>
-                </div>
+                <CollaboratorsPage samples={samples} content={content} />
               }
             />
 
