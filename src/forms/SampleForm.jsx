@@ -13,9 +13,17 @@ export default function SampleForm({ value, onClose, onSave }) {
     received: iso(new Date()),
     deadline: shift(14),
     deliverables: 1,
+    deadlineScope: "first",
   };
 
-  const [form, setForm] = useState(value === "new" ? empty : value);
+  const [form, setForm] = useState(
+    value === "new"
+      ? empty
+      : {
+          ...value,
+          deadlineScope: value.deadlineScope || "first",
+        },
+  );
 
   const update = (key, val) => {
     setForm((previous) => ({
@@ -42,10 +50,12 @@ export default function SampleForm({ value, onClose, onSave }) {
         className="form-grid"
         onSubmit={(e) => {
           e.preventDefault();
+
           onSave({
             ...form,
             platform: "TikTok",
             deliverables: Math.max(1, Number(form.deliverables)),
+            deadlineScope: form.deadlineScope || "first",
           });
         }}
       >
@@ -120,9 +130,29 @@ export default function SampleForm({ value, onClose, onSave }) {
           />
         </label>
 
+        <label className="wide">
+          Deadline applies to
+          <select
+            value={form.deadlineScope}
+            onChange={(e) => update("deadlineScope", e.target.value)}
+          >
+            <option value="first">First delivery only</option>
+            <option value="all">All deliveries</option>
+          </select>
+        </label>
+
         <div className="form-note wide">
           <Clock3 size={16} />
           Deadline: {shortDate(form.deadline)}
+        </div>
+
+        <div className="form-note wide">
+          {form.deadlineScope === "first"
+            ? "The deadline stops applying once your first video is posted."
+            : `The deadline applies until all ${Math.max(
+                1,
+                Number(form.deliverables || 1),
+              )} required videos are posted.`}
         </div>
 
         <div className="modal-actions wide">

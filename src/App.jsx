@@ -174,6 +174,7 @@ function AppLayout() {
       ...formData,
       id: formData.id || uid(),
       platform: "TikTok",
+      deadlineScope: formData.deadlineScope || "first",
     };
 
     try {
@@ -226,6 +227,7 @@ function AppLayout() {
           received: formData.postingDate,
           deadline: formData.postingDate,
           deliverables: 1,
+          deadlineScope: "first",
         };
 
         await saveUserRecord(user.uid, "samples", newSample);
@@ -338,6 +340,7 @@ function AppLayout() {
       "Category",
       "Received",
       "Deadline",
+      "Deadline Scope",
       "Deliverables",
       "Posted",
     ];
@@ -348,6 +351,7 @@ function AppLayout() {
       sample.category,
       sample.received,
       sample.deadline,
+      sample.deadlineScope || "first",
       sample.deliverables,
       postedFor(sample.id),
     ]);
@@ -382,10 +386,19 @@ function AppLayout() {
   // Upcoming and overdue samples
   const urgent = samples
     .filter((sample) => {
-      const completed =
-        postedFor(sample.id) >= Number(sample.deliverables || 1);
+      const posted = postedFor(sample.id);
+      const deliverables = Number(sample.deliverables || 1);
 
-      if (completed || !sample.deadline) return false;
+      // Existing samples default to First delivery only
+      const deadlineScope = sample.deadlineScope || "first";
+
+      // Check whether the deadline still applies
+      const deadlineStillApplies =
+        deadlineScope === "all" ? posted < deliverables : posted === 0;
+
+      if (!deadlineStillApplies || !sample.deadline) {
+        return false;
+      }
 
       const remaining =
         (new Date(`${sample.deadline}T12:00:00`) -
@@ -394,7 +407,7 @@ function AppLayout() {
 
       return remaining <= 7;
     })
-    .sort((a, b) => a.deadline.localeCompare(b.deadline))
+    .sort((a, b) => (a.deadline || "").localeCompare(b.deadline || ""))
     .slice(0, 5);
 
   // Today's posts

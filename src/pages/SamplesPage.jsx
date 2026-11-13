@@ -18,6 +18,32 @@ export default function SamplesPage({
   const [status, setStatus] = useState("All");
   const [sort, setSort] = useState("deadline");
 
+  const getSampleStatus = (sample) => {
+    const posted = postedFor(sample.id);
+    const required = Number(sample.deliverables || 1);
+
+    const completed = posted >= required;
+
+    // Existing samples default to First delivery only
+    const deadlineScope = sample.deadlineScope || "first";
+
+    const deadlineStillApplies =
+      deadlineScope === "all" ? !completed : posted === 0;
+
+    const remaining = sample.deadline ? daysTo(sample.deadline) : null;
+
+    const overdue = deadlineStillApplies && remaining !== null && remaining < 0;
+
+    return {
+      posted,
+      required,
+      completed,
+      overdue,
+      deadlineStillApplies,
+      remaining,
+    };
+  };
+
   const filteredSamples = useMemo(() => {
     let result = samples.filter((sample) => {
       const keyword = search.toLowerCase();
@@ -26,15 +52,21 @@ export default function SamplesPage({
         sample.product?.toLowerCase().includes(keyword) ||
         sample.brand?.toLowerCase().includes(keyword);
 
-      const posted = postedFor(sample.id);
-      const completed = posted >= Number(sample.deliverables || 1);
-      const overdue = daysTo(sample.deadline) < 0 && !completed;
+      const sampleStatus = getSampleStatus(sample);
 
       let matchesStatus = true;
 
-      if (status === "Completed") matchesStatus = completed;
-      if (status === "Overdue") matchesStatus = overdue;
-      if (status === "Pending") matchesStatus = !completed && !overdue;
+      if (status === "Completed") {
+        matchesStatus = sampleStatus.completed;
+      }
+
+      if (status === "Overdue") {
+        matchesStatus = sampleStatus.overdue;
+      }
+
+      if (status === "Pending") {
+        matchesStatus = !sampleStatus.completed && !sampleStatus.overdue;
+      }
 
       return matchesSearch && matchesStatus;
     });
@@ -121,11 +153,14 @@ export default function SamplesPage({
 
               <tbody>
                 {filteredSamples.map((sample) => {
-                  const posted = postedFor(sample.id);
-                  const required = Number(sample.deliverables || 1);
-                  const completed = posted >= required;
-                  const remaining = daysTo(sample.deadline);
-                  const overdue = remaining < 0 && !completed;
+                  const {
+                    posted,
+                    required,
+                    completed,
+                    overdue,
+                    deadlineStillApplies,
+                    remaining,
+                  } = getSampleStatus(sample);
 
                   return (
                     <tr key={sample.id}>
@@ -137,14 +172,38 @@ export default function SamplesPage({
                             <span className="sample-tag brand-tag">
                               {sample.brand}
                             </span>
+
                             <span className="sample-tag category-tag">
                               {sample.category}
                             </span>
                           </div>
                         </div>
                       </td>
+
                       <td>{shortDate(sample.received)}</td>
-                      <td>{shortDate(sample.deadline)}</td>
+
+                      <td>
+                        <div>
+                          {shortDate(sample.deadline)}
+
+                          {deadlineStillApplies &&
+                            remaining !== null &&
+                            remaining >= 0 &&
+                            remaining <= 7 && (
+                              <div className="sample-deadline-hint">
+                                {remaining === 0
+                                  ? "Due today"
+                                  : `${remaining} day(s) left`}
+                              </div>
+                            )}
+
+                          {!deadlineStillApplies && (
+                            <div className="sample-deadline-hint">
+                              Deadline fulfilled
+                            </div>
+                          )}
+                        </div>
+                      </td>
 
                       <td>{required} video(s)</td>
 
@@ -154,7 +213,10 @@ export default function SamplesPage({
                             <div
                               className="progress-fill"
                               style={{
-                                width: `${Math.min(100, (posted / required) * 100)}%`,
+                                width: `${Math.min(
+                                  100,
+                                  (posted / required) * 100,
+                                )}%`,
                               }}
                             />
                           </div>
@@ -164,6 +226,7 @@ export default function SamplesPage({
                           </span>
                         </div>
                       </td>
+
                       <td>
                         <Badge
                           tone={
