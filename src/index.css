@@ -4316,3 +4316,12 @@ a:focus-visible {
     filter: grayscale(1);
   }
 }
+@media (max-width: 850px) {
+  .sidebar {
+    z-index: 30;
+  }
+
+  .mobile-bottom-nav {
+    z-index: 20;
+  }
+}
