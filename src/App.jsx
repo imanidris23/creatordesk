@@ -622,8 +622,7 @@ function AppLayout() {
 
       {/* Mobile bottom navigation */}
       <nav
-        className={`mobile-bottom-nav ${sidebarOpen ? "nav-disabled" : ""}`}
-        aria-hidden={sidebarOpen}
+        className={`mobile-bottom-nav ${sidebarOpen ? "sidebar-behind" : ""}`}
       >
         {bottomNavigation.map((item) => {
           const Icon = item.icon;
