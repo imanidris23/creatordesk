@@ -21,6 +21,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Palette,
+  Home,
+  UsersRound,
 } from "lucide-react";
 
 import { useAuth } from "./context/AuthContext.jsx";
@@ -51,15 +53,20 @@ import WithdrawalForm from "./forms/WithdrawalForm.jsx";
 // Helpers
 import { uid, iso, download } from "./utils/helpers.js";
 
-// Navigation
-const navigation = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard },
-  { name: "Samples", path: "/samples", icon: Package },
-  { name: "Content", path: "/content", icon: Play },
+// Sidebar navigation
+const sidebarNavigation = [
+  { name: "Collaborators", path: "/collaborators", icon: UsersRound },
   { name: "Analytics", path: "/analytics", icon: ChartNoAxesCombined },
   { name: "Calendar", path: "/calendar", icon: CalendarDays },
   { name: "Withdrawals", path: "/withdrawals", icon: Wallet },
   { name: "Appearance", path: "/appearance", icon: Palette },
+];
+
+// Mobile bottom navigation
+const bottomNavigation = [
+  { name: "Home", path: "/", icon: Home },
+  { name: "Samples", path: "/samples", icon: Package },
+  { name: "Content", path: "/content", icon: Play },
 ];
 
 // Authentication loading screen
@@ -459,16 +466,15 @@ function AppLayout() {
         </div>
 
         <nav>
-          <div className="nav-label">Workspace</div>
+          <div className="nav-label">Manage</div>
 
-          {navigation.map((item) => {
+          {sidebarNavigation.map((item) => {
             const Icon = item.icon;
 
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
-                end={item.path === "/"}
                 onClick={() => setSidebarOpen(false)}
               >
                 <Icon size={18} />
@@ -592,12 +598,38 @@ function AppLayout() {
               }
             />
 
+            <Route
+              path="/collaborators"
+              element={
+                <div className="page-title">
+                  <div>
+                    <h1>Collaborators</h1>
+                    <p>Manage your brand partnerships and deliverables.</p>
+                  </div>
+                </div>
+              }
+            />
+
             <Route path="/appearance" element={<AppearancePage />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
       </main>
+
+      {/* Mobile bottom navigation */}
+      <nav className="mobile-bottom-nav">
+        {bottomNavigation.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <NavLink key={item.path} to={item.path} end={item.path === "/"}>
+              <Icon size={21} />
+              <span>{item.name}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
 
       {/* Forms */}
       {activeForm?.type === "sample" && (

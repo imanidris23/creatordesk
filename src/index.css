@@ -4219,3 +4219,78 @@ a:focus-visible {
     font-size: 9px;
   }
 }
+
+/* =================================
+   CREATOR DESK - NEW NAVIGATION
+================================= */
+
+/* Hidden on desktop */
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* Sidebar navigation */
+.sidebar nav {
+  padding-top: 20px;
+}
+
+.sidebar nav .nav-label {
+  margin-bottom: 12px;
+}
+
+/* Mobile bottom navigation */
+@media (max-width: 850px) {
+  .mobile-bottom-nav {
+    position: fixed;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+
+    min-height: 68px;
+    padding: 7px 12px calc(7px + env(safe-area-inset-bottom));
+
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -5px 20px rgba(40, 30, 60, 0.06);
+  }
+
+  .mobile-bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    min-height: 48px;
+    border-radius: 12px;
+
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 600;
+    transition: 0.2s ease;
+  }
+
+  .mobile-bottom-nav a.active {
+    color: var(--purple);
+    background: var(--active-bg);
+  }
+
+  .app-shell main {
+    padding-bottom: 80px;
+  }
+
+  .app-shell.sidebar-collapsed main {
+    margin-left: 0;
+  }
+}
+
+/* Dark mode */
+.dark .mobile-bottom-nav {
+  background: #292633;
+  border-color: #494354;
+}
