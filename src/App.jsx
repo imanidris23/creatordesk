@@ -621,20 +621,26 @@ function AppLayout() {
       </main>
 
       {/* Mobile bottom navigation */}
-      {/* Mobile bottom navigation */}
-      {!sidebarOpen && (
-        <nav className="mobile-bottom-nav">
-          {bottomNavigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink key={item.path} to={item.path} end={item.path === "/"}>
-                <Icon size={21} />
-                <span>{item.name}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
-      )}
+      <nav
+        className={`mobile-bottom-nav ${sidebarOpen ? "nav-disabled" : ""}`}
+        aria-hidden={sidebarOpen}
+      >
+        {bottomNavigation.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === "/"}
+              tabIndex={sidebarOpen ? -1 : 0}
+            >
+              <Icon size={21} />
+              <span>{item.name}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
 
       {/* Forms */}
       {activeForm?.type === "sample" && (

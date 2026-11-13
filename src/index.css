@@ -4302,3 +4302,11 @@ a:focus-visible {
     display: none;
   }
 }
+/* Dim and disable bottom navigation when sidebar is open */
+@media (max-width: 850px) {
+  .mobile-bottom-nav.nav-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(1);
+  }
+}
