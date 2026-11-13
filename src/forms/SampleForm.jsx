@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, Clock3 } from "lucide-react";
 import Modal from "../components/Modal.jsx";
 import { iso, shift, addDays, shortDate } from "../utils/helpers";
 
-export default function SampleForm({ value, onClose, onSave }) {
+export default function SampleForm({ value, onClose, onSave, samples = [] }) {
   const empty = {
     id: "",
     product: "",
@@ -25,6 +25,25 @@ export default function SampleForm({ value, onClose, onSave }) {
         },
   );
 
+  // Get unique brand names from existing samples.
+  const brands = useMemo(() => {
+    const uniqueBrands = new Map();
+
+    samples.forEach((sample) => {
+      const brand = sample.brand?.trim().replace(/\s+/g, " ");
+
+      if (brand) {
+        const normalized = brand.toLowerCase();
+
+        if (!uniqueBrands.has(normalized)) {
+          uniqueBrands.set(normalized, brand);
+        }
+      }
+    });
+
+    return Array.from(uniqueBrands.values()).sort((a, b) => a.localeCompare(b));
+  }, [samples]);
+
   const update = (key, val) => {
     setForm((previous) => ({
       ...previous,
@@ -40,25 +59,32 @@ export default function SampleForm({ value, onClose, onSave }) {
     }));
   };
 
+  const saveSample = (e) => {
+    e.preventDefault();
+
+    const typedBrand = form.brand.trim().replace(/\s+/g, " ");
+
+    // Reuse the existing brand spelling if it already exists.
+    const existingBrand = brands.find(
+      (brand) => brand.toLowerCase() === typedBrand.toLowerCase(),
+    );
+
+    onSave({
+      ...form,
+      brand: existingBrand || typedBrand,
+      platform: "TikTok",
+      deliverables: Math.max(1, Number(form.deliverables)),
+      deadlineScope: form.deadlineScope || "first",
+    });
+  };
+
   return (
     <Modal
       title={value === "new" ? "Add a new sample" : "Edit sample"}
       subtitle="Deadlines default to 14 days after receiving."
       onClose={onClose}
     >
-      <form
-        className="form-grid"
-        onSubmit={(e) => {
-          e.preventDefault();
-
-          onSave({
-            ...form,
-            platform: "TikTok",
-            deliverables: Math.max(1, Number(form.deliverables)),
-            deadlineScope: form.deadlineScope || "first",
-          });
-        }}
-      >
+      <form className="form-grid" onSubmit={saveSample}>
         <label className="wide">
           Product name
           <input
@@ -73,10 +99,17 @@ export default function SampleForm({ value, onClose, onSave }) {
           Brand
           <input
             required
+            list="existing-brands"
             value={form.brand}
             onChange={(e) => update("brand", e.target.value)}
-            placeholder="Brand name"
+            placeholder="Type or select a brand"
+            autoComplete="off"
           />
+          <datalist id="existing-brands">
+            {brands.map((brand) => (
+              <option key={brand} value={brand} />
+            ))}
+          </datalist>
         </label>
 
         <label>

@@ -16,18 +16,30 @@ export default function ContentPage({
   const [search, setSearch] = useState("");
   const [fypFilter, setFypFilter] = useState("All");
 
-  // Search, filter and sort content.
+  // Get today's local date
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  // Determine whether content has been posted
+  const isPosted = (item) => !item.postingDate || item.postingDate <= today;
+
   const filteredContent = useMemo(() => {
     return [...content]
       .filter((item) => {
-        const keyword = search.toLowerCase();
+        const keyword = search.trim().toLowerCase();
 
         const sample = samples.find((sample) => sample.id === item.sampleId);
 
         const matchesSearch =
           item.title?.toLowerCase().includes(keyword) ||
           item.product?.toLowerCase().includes(keyword) ||
-          sample?.product?.toLowerCase().includes(keyword);
+          item.brand?.toLowerCase().includes(keyword) ||
+          sample?.product?.toLowerCase().includes(keyword) ||
+          sample?.brand?.toLowerCase().includes(keyword);
 
         const reachedFyp = item.fyp === true || item.fyp === "Yes";
 
@@ -38,8 +50,19 @@ export default function ContentPage({
 
         return matchesSearch && matchesFyp;
       })
-      .sort((a, b) => (b.postingDate || "").localeCompare(a.postingDate || ""));
-  }, [content, samples, search, fypFilter]);
+      .sort((a, b) => {
+        // Posted content first, scheduled content below
+        const aPosted = isPosted(a);
+        const bPosted = isPosted(b);
+
+        if (aPosted !== bPosted) {
+          return aPosted ? -1 : 1;
+        }
+
+        // Sort by date, newest first
+        return (b.postingDate || "").localeCompare(a.postingDate || "");
+      });
+  }, [content, samples, search, fypFilter, today]);
 
   return (
     <div className="page">
@@ -91,7 +114,8 @@ export default function ContentPage({
                 <tr>
                   <th>Content</th>
                   <th>Product</th>
-                  <th>Posted</th>
+                  <th>Posting date</th>
+                  <th>Status</th>
                   <th>FYP</th>
                   <th>Actions</th>
                 </tr>
@@ -108,8 +132,13 @@ export default function ContentPage({
 
                   const reachedFyp = item.fyp === true || item.fyp === "Yes";
 
+                  const posted = isPosted(item);
+
                   return (
-                    <tr key={item.id}>
+                    <tr
+                      key={item.id}
+                      className={!posted ? "content-row-scheduled" : ""}
+                    >
                       {/* Content title and TikTok link */}
                       <td>
                         <strong>{item.title || "Untitled video"}</strong>
@@ -133,6 +162,13 @@ export default function ContentPage({
 
                       {/* Posting date */}
                       <td>{shortDate(item.postingDate)}</td>
+
+                      {/* Posting status */}
+                      <td>
+                        <Badge tone={posted ? "green" : "orange"}>
+                          {posted ? "Posted" : "Scheduled"}
+                        </Badge>
+                      </td>
 
                       {/* FYP status */}
                       <td>

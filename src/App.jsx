@@ -173,9 +173,15 @@ function AppLayout() {
     return <AuthLoading />;
   }
 
-  // Count content linked to a sample
+  // Count only content whose posting date has arrived
   const postedFor = (sampleId) => {
-    return content.filter((item) => item.sampleId === sampleId).length;
+    const today = iso(new Date());
+
+    return content.filter(
+      (item) =>
+        item.sampleId === sampleId &&
+        (!item.postingDate || item.postingDate <= today),
+    ).length;
   };
 
   // Save sample
@@ -649,6 +655,7 @@ function AppLayout() {
           value={activeForm.value}
           onClose={() => setActiveForm(null)}
           onSave={saveSample}
+          samples={samples}
         />
       )}
 

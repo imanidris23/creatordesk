@@ -4364,3 +4364,28 @@ a:focus-visible {
     justify-content: center;
   }
 }
+/* Completed sample rows */
+.data-table tbody tr.sample-row-completed {
+  background: var(--canvas);
+}
+
+.data-table tbody tr.sample-row-completed td {
+  color: var(--muted);
+}
+
+.data-table tbody tr.sample-row-completed .sample-product-info strong {
+  color: var(--muted);
+}
+
+/* Scheduled content rows */
+.data-table tbody tr.content-row-scheduled {
+  background: var(--canvas);
+}
+
+.data-table tbody tr.content-row-scheduled td {
+  color: var(--muted);
+}
+
+.data-table tbody tr.content-row-scheduled td strong {
+  color: var(--muted);
+}

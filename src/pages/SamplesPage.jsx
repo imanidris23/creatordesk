@@ -22,9 +22,9 @@ export default function SamplesPage({
     const posted = postedFor(sample.id);
     const required = Number(sample.deliverables || 1);
 
+    // Deliverables are minimum requirements
     const completed = posted >= required;
 
-    // Existing samples default to First delivery only
     const deadlineScope = sample.deadlineScope || "first";
 
     const deadlineStillApplies =
@@ -46,7 +46,7 @@ export default function SamplesPage({
 
   const filteredSamples = useMemo(() => {
     let result = samples.filter((sample) => {
-      const keyword = search.toLowerCase();
+      const keyword = search.trim().toLowerCase();
 
       const matchesSearch =
         sample.product?.toLowerCase().includes(keyword) ||
@@ -72,6 +72,14 @@ export default function SamplesPage({
     });
 
     result.sort((a, b) => {
+      const aCompleted = getSampleStatus(a).completed;
+      const bCompleted = getSampleStatus(b).completed;
+
+      // Always move completed samples to the bottom
+      if (aCompleted !== bCompleted) {
+        return aCompleted ? 1 : -1;
+      }
+
       if (sort === "deadline") {
         return (a.deadline || "").localeCompare(b.deadline || "");
       }
@@ -163,7 +171,10 @@ export default function SamplesPage({
                   } = getSampleStatus(sample);
 
                   return (
-                    <tr key={sample.id}>
+                    <tr
+                      key={sample.id}
+                      className={completed ? "sample-row-completed" : ""}
+                    >
                       <td>
                         <div className="sample-product-info">
                           <strong>{sample.product}</strong>
@@ -222,7 +233,7 @@ export default function SamplesPage({
                           </div>
 
                           <span>
-                            {posted}/{required}
+                            {posted} / {required}
                           </span>
                         </div>
                       </td>
