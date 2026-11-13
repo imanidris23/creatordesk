@@ -11,7 +11,15 @@ import {
 import PageTitle from "../components/PageTitle";
 import Empty from "../components/Empty";
 import Badge from "../components/Badge";
-import { iso } from "../utils/helpers";
+
+// Format dates using local time instead of UTC
+function formatLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 
 export default function CalendarPage({
   content,
@@ -20,9 +28,9 @@ export default function CalendarPage({
   setDailyGoal,
   onAdd,
 }) {
-  const today = iso(new Date());
+  const today = formatLocalDate(new Date());
 
-  const [cursor, setCursor] = useState(new Date());
+  const [cursor, setCursor] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState(today);
 
   const year = cursor.getFullYear();
@@ -35,8 +43,11 @@ export default function CalendarPage({
     index < firstDay ? null : index - firstDay + 1,
   );
 
-  const isPosted = (item) => !item.postingDate || item.postingDate <= today;
+  // A video is posted when its posting date is today or earlier.
+  const isPosted = (item) =>
+    Boolean(item.postingDate) && item.postingDate <= today;
 
+  // Get content belonging to a specific date.
   const postsForDate = (date) =>
     content.filter((item) => item.postingDate === date);
 
@@ -46,6 +57,7 @@ export default function CalendarPage({
       )
     : [];
 
+  // Count today's posted videos only.
   const todayPosts = postsForDate(today).filter(isPosted).length;
 
   const monthName = cursor.toLocaleDateString("en-MY", {
@@ -53,6 +65,7 @@ export default function CalendarPage({
     year: "numeric",
   });
 
+  // Display selected date without UTC conversion.
   const selectedDateLabel = selectedDate
     ? new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-MY", {
         weekday: "long",
@@ -62,6 +75,7 @@ export default function CalendarPage({
       })
     : "No date selected";
 
+  // Change calendar month.
   const changeMonth = (amount) => {
     setCursor(new Date(year, month + amount, 1));
     setSelectedDate(null);
@@ -87,6 +101,7 @@ export default function CalendarPage({
     );
   });
 
+  // Get product and brand details from content or linked sample.
   const getProductDetails = (item) => {
     const sample = samples.find((sample) => sample.id === item.sampleId);
 
@@ -111,6 +126,7 @@ export default function CalendarPage({
       />
 
       <div className="dashboard-grid">
+        {/* Calendar */}
         <section className="table-card calendar-card">
           <div className="section-heading">
             <div>
@@ -149,7 +165,8 @@ export default function CalendarPage({
                 return <div key={`blank-${index}`} />;
               }
 
-              const date = iso(new Date(year, month, day));
+              const date = formatLocalDate(new Date(year, month, day));
+
               const posts = postsForDate(date);
               const postedCount = posts.filter(isPosted).length;
               const scheduledCount = posts.length - postedCount;
@@ -190,6 +207,7 @@ export default function CalendarPage({
               <i className="legend-dot posted-dot" />
               Posted
             </span>
+
             <span>
               <i className="legend-dot scheduled-dot" />
               Scheduled
@@ -197,12 +215,14 @@ export default function CalendarPage({
           </div>
         </section>
 
+        {/* Daily posting goal */}
         <section className="table-card">
           <div className="section-heading">
             <div>
               <h2>Daily posting goal</h2>
               <p>Track your consistency</p>
             </div>
+
             <Target size={19} />
           </div>
 
@@ -249,6 +269,7 @@ export default function CalendarPage({
         <div className="section-heading">
           <div>
             <h2>{selectedDateLabel}</h2>
+
             <p>
               {selectedDate
                 ? `${selectedPosts.length} video(s) on this date`
@@ -321,6 +342,7 @@ export default function CalendarPage({
             <h2>Products to revisit</h2>
             <p>Products without recent posted content</p>
           </div>
+
           <CalendarDays size={19} />
         </div>
 
