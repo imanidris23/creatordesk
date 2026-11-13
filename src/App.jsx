@@ -230,53 +230,32 @@ function AppLayout() {
   };
 
   // Save content
-  const saveContent = async (formData) => {
-    let sampleId = formData.sampleId;
+
+  // Toggle FYP status
+  const toggleFyp = async (item) => {
+    const today = iso(new Date());
+
+    // Only allow FYP updates after the posting date arrives
+    if (item.postingDate && item.postingDate > today) return;
+
+    const reachedFyp = item.fyp === true || item.fyp === "Yes";
+
+    const updatedRecord = {
+      ...item,
+      fyp: reachedFyp ? "No" : "Yes",
+    };
 
     try {
-      if (formData.isNewProduct) {
-        const newSample = {
-          id: uid(),
-          product: formData.product,
-          brand: formData.brand,
-          category: formData.category || "Other",
-          platform: "TikTok",
-          received: formData.postingDate,
-          deadline: formData.postingDate,
-          deliverables: 1,
-          deadlineScope: "first",
-        };
-
-        await saveUserRecord(user.uid, "samples", newSample);
-
-        setSamples((previous) => [...previous, newSample]);
-        sampleId = newSample.id;
-      }
-
-      const linkedSample = samples.find((item) => item.id === sampleId);
-
-      const record = {
-        ...formData,
-        id: formData.id || uid(),
-        sampleId,
-        product: formData.product || linkedSample?.product || "",
-        brand: formData.brand || linkedSample?.brand || "",
-        platform: "TikTok",
-        fyp: formData.fyp === true || formData.fyp === "Yes" ? "Yes" : "No",
-      };
-
-      await saveUserRecord(user.uid, "content", record);
+      await saveUserRecord(user.uid, "content", updatedRecord);
 
       setContent((previous) =>
-        formData.id
-          ? previous.map((item) => (item.id === record.id ? record : item))
-          : [...previous, record],
+        previous.map((record) =>
+          record.id === item.id ? updatedRecord : record,
+        ),
       );
-
-      setActiveForm(null);
     } catch (error) {
-      console.error("Failed to save content:", error);
-      alert("Unable to save content. Please try again.");
+      console.error("Failed to update FYP status:", error);
+      alert("Unable to update FYP status. Please try again.");
     }
   };
 
@@ -575,6 +554,7 @@ function AppLayout() {
                   onAdd={() => openForm("content")}
                   onEdit={(item) => openForm("content", item)}
                   onDelete={deleteContent}
+                  onToggleFyp={toggleFyp}
                 />
               }
             />

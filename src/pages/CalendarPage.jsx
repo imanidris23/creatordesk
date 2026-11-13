@@ -5,10 +5,12 @@ import {
   ChevronRight,
   Plus,
   Target,
+  ExternalLink,
 } from "lucide-react";
 
 import PageTitle from "../components/PageTitle";
 import Empty from "../components/Empty";
+import Badge from "../components/Badge";
 import { iso } from "../utils/helpers";
 
 export default function CalendarPage({
@@ -18,7 +20,10 @@ export default function CalendarPage({
   setDailyGoal,
   onAdd,
 }) {
+  const today = iso(new Date());
+
   const [cursor, setCursor] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(today);
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
@@ -26,19 +31,47 @@ export default function CalendarPage({
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const today = iso(new Date());
-
   const days = Array.from({ length: firstDay + daysInMonth }, (_, index) =>
     index < firstDay ? null : index - firstDay + 1,
   );
 
+  const isPosted = (item) => !item.postingDate || item.postingDate <= today;
+
   const postsForDate = (date) =>
     content.filter((item) => item.postingDate === date);
 
-  const todayPosts = postsForDate(today).length;
+  const selectedPosts = selectedDate
+    ? postsForDate(selectedDate).sort((a, b) =>
+        (a.title || "").localeCompare(b.title || ""),
+      )
+    : [];
 
+  const todayPosts = postsForDate(today).filter(isPosted).length;
+
+  const monthName = cursor.toLocaleDateString("en-MY", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const selectedDateLabel = selectedDate
+    ? new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-MY", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "No date selected";
+
+  const changeMonth = (amount) => {
+    setCursor(new Date(year, month + amount, 1));
+    setSelectedDate(null);
+  };
+
+  // Products without a recent posted video.
   const staleProducts = samples.filter((sample) => {
-    const samplePosts = content.filter((item) => item.sampleId === sample.id);
+    const samplePosts = content.filter(
+      (item) => item.sampleId === sample.id && isPosted(item),
+    );
 
     if (samplePosts.length === 0) return true;
 
@@ -54,13 +87,13 @@ export default function CalendarPage({
     );
   });
 
-  const monthName = cursor.toLocaleDateString("en-MY", {
-    month: "long",
-    year: "numeric",
-  });
+  const getProductDetails = (item) => {
+    const sample = samples.find((sample) => sample.id === item.sampleId);
 
-  const changeMonth = (amount) => {
-    setCursor(new Date(year, month + amount, 1));
+    return {
+      product: item.product || sample?.product || "Unknown product",
+      brand: item.brand || sample?.brand || "Unknown brand",
+    };
   };
 
   return (
@@ -118,22 +151,49 @@ export default function CalendarPage({
 
               const date = iso(new Date(year, month, day));
               const posts = postsForDate(date);
+              const postedCount = posts.filter(isPosted).length;
+              const scheduledCount = posts.length - postedCount;
 
               return (
-                <div
-                  className={`calendar-day ${date === today ? "today" : ""}`}
+                <button
+                  type="button"
+                  className={[
+                    "calendar-day",
+                    date === today ? "today" : "",
+                    date === selectedDate ? "selected" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   key={date}
+                  onClick={() => setSelectedDate(date)}
+                  aria-pressed={date === selectedDate}
+                  aria-label={`${date}, ${posts.length} video(s)`}
                 >
                   <span>{day}</span>
 
                   {posts.length > 0 && (
                     <div className="calendar-post-count">
-                      {posts.length} post(s)
+                      {postedCount > 0 && <span>{postedCount} posted</span>}
+
+                      {scheduledCount > 0 && (
+                        <span>{scheduledCount} scheduled</span>
+                      )}
                     </div>
                   )}
-                </div>
+                </button>
               );
             })}
+          </div>
+
+          <div className="calendar-legend">
+            <span>
+              <i className="legend-dot posted-dot" />
+              Posted
+            </span>
+            <span>
+              <i className="legend-dot scheduled-dot" />
+              Scheduled
+            </span>
           </div>
         </section>
 
@@ -184,11 +244,82 @@ export default function CalendarPage({
         </section>
       </div>
 
+      {/* Selected date videos */}
+      <section className="table-card selected-date-card">
+        <div className="section-heading">
+          <div>
+            <h2>{selectedDateLabel}</h2>
+            <p>
+              {selectedDate
+                ? `${selectedPosts.length} video(s) on this date`
+                : "Select a date from the calendar to view its videos."}
+            </p>
+          </div>
+
+          {selectedDate && (
+            <button className="secondary-button" onClick={onAdd}>
+              <Plus size={15} />
+              Add content
+            </button>
+          )}
+        </div>
+
+        {!selectedDate ? (
+          <Empty
+            icon={CalendarDays}
+            title="Select a date"
+            text="Click any date in the calendar to see its videos."
+          />
+        ) : selectedPosts.length === 0 ? (
+          <Empty
+            icon={CalendarDays}
+            title="No videos on this date"
+            text="There are no scheduled or posted videos for this date."
+          />
+        ) : (
+          <div className="calendar-video-list">
+            {selectedPosts.map((item) => {
+              const details = getProductDetails(item);
+              const posted = isPosted(item);
+
+              return (
+                <div className="calendar-video-item" key={item.id}>
+                  <div className="calendar-video-info">
+                    <strong>{item.title || "Untitled video"}</strong>
+                    <span>{details.product}</span>
+                    <span>{details.brand}</span>
+                  </div>
+
+                  <div className="calendar-video-actions">
+                    <Badge tone={posted ? "green" : "orange"}>
+                      {posted ? "Posted" : "Scheduled"}
+                    </Badge>
+
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="calendar-video-link"
+                      >
+                        TikTok
+                        <ExternalLink size={14} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Products to revisit */}
       <section className="table-card">
         <div className="section-heading">
           <div>
             <h2>Products to revisit</h2>
-            <p>Products without recent content activity</p>
+            <p>Products without recent posted content</p>
           </div>
           <CalendarDays size={19} />
         </div>

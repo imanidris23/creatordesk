@@ -12,6 +12,7 @@ export default function ContentPage({
   onAdd,
   onEdit,
   onDelete,
+  onToggleFyp,
 }) {
   const [search, setSearch] = useState("");
   const [fypFilter, setFypFilter] = useState("All");
@@ -172,9 +173,26 @@ export default function ContentPage({
 
                       {/* FYP status */}
                       <td>
-                        <Badge tone={reachedFyp ? "green" : "gray"}>
-                          {reachedFyp ? "Yes" : "No"}
-                        </Badge>
+                        <button
+                          type="button"
+                          className="fyp-status-toggle"
+                          onClick={() => onToggleFyp(item)}
+                          disabled={!posted}
+                          aria-label={
+                            posted
+                              ? `Change FYP status for ${item.title}`
+                              : "FYP can only be updated after posting"
+                          }
+                          title={
+                            posted
+                              ? "Click to change FYP status"
+                              : "Available after posting date"
+                          }
+                        >
+                          <Badge tone={reachedFyp ? "green" : "gray"}>
+                            {reachedFyp ? "Yes ✓" : "No"}
+                          </Badge>
+                        </button>
                       </td>
 
                       {/* Actions */}
