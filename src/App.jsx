@@ -55,6 +55,9 @@ import { uid, iso, download } from "./utils/helpers.js";
 
 // Sidebar navigation
 const sidebarNavigation = [
+  { name: "Home", path: "/", icon: Home },
+  { name: "Samples", path: "/samples", icon: Package },
+  { name: "Content", path: "/content", icon: Play },
   { name: "Collaborators", path: "/collaborators", icon: UsersRound },
   { name: "Analytics", path: "/analytics", icon: ChartNoAxesCombined },
   { name: "Calendar", path: "/calendar", icon: CalendarDays },
