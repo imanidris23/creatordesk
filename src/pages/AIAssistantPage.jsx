@@ -106,6 +106,7 @@ export default function AIAssistantPage({ samples, content }) {
 
       // Get Gemini's response
       const reply = await sendAIMessage(message);
+
       console.log("RAW GEMINI RESPONSE:", JSON.stringify(reply));
 
       const assistantMessage = {
@@ -154,12 +155,14 @@ export default function AIAssistantPage({ samples, content }) {
 
   return (
     <div className="ai-page">
+      {/* Header */}
       <div className="ai-header">
         <div>
           <div className="ai-title">
             <Sparkles size={24} />
             <h1>CreatorDesk AI</h1>
           </div>
+
           <p>Your personal TikTok affiliate assistant.</p>
         </div>
 
@@ -173,6 +176,7 @@ export default function AIAssistantPage({ samples, content }) {
         </button>
       </div>
 
+      {/* Statistics */}
       <div className="ai-stats">
         <div>
           <span>Samples tracked</span>
@@ -185,14 +189,22 @@ export default function AIAssistantPage({ samples, content }) {
         </div>
       </div>
 
-      <div className="ai-chat">
+      {/* Chat container */}
+      <div
+        className={`ai-chat ${
+          messages.length > 0 ? "has-messages" : "empty-chat"
+        }`}
+      >
+        {/* Messages */}
         <div className="ai-messages">
           {loadingHistory ? (
             <div className="ai-welcome">Loading your chat history...</div>
           ) : messages.length === 0 ? (
             <div className="ai-welcome">
               <Sparkles size={32} />
+
               <h2>What can I help you with?</h2>
+
               <p>
                 Ask me about TikTok hooks, content ideas, product promotion or
                 affiliate performance.
@@ -230,6 +242,7 @@ export default function AIAssistantPage({ samples, content }) {
           )}
         </div>
 
+        {/* Message input */}
         <div className="ai-input-area">
           <textarea
             value={input}
@@ -254,6 +267,7 @@ export default function AIAssistantPage({ samples, content }) {
           </button>
         </div>
 
+        {/* Disclaimer */}
         <p className="ai-disclaimer">
           AI can make mistakes. Always review its suggestions.
         </p>

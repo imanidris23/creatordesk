@@ -117,7 +117,7 @@
 }
 
 /* =========================
-   SCROLLABLE MESSAGES
+   MESSAGES AREA
 ========================= */
 
 .ai-messages {
@@ -199,11 +199,6 @@
   width: 36px;
   height: 36px;
   border-radius: 12px;
-  background: var(--active-bg);
-  color: var(--purple);
-}
-
-.ai-message.assistant .ai-message-icon {
   background: var(--active-bg);
   color: var(--purple);
 }
@@ -550,7 +545,7 @@
     font-size: 20px;
   }
 
-  /* Smaller but still usable chat on mobile */
+  /* Normal chat container */
 
   .ai-chat {
     height: 65dvh;
@@ -559,11 +554,38 @@
     border-radius: 14px;
   }
 
-  .ai-messages {
+  /* Empty chat: allow the whole page to scroll */
+
+  .ai-chat.empty-chat {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .ai-chat.empty-chat .ai-messages {
+    flex: none;
+    min-height: 220px;
+    max-height: none;
+    padding: 24px 14px;
+    overflow: visible;
+  }
+
+  /* Chat with messages: scroll messages independently */
+
+  .ai-chat.has-messages {
+    overflow: hidden;
+  }
+
+  .ai-chat.has-messages .ai-messages {
+    flex: 1;
     min-height: 0;
     padding: 14px;
     gap: 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
     overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
   }
 
@@ -602,7 +624,7 @@
     padding: 8px;
   }
 
-  /* Input stays visible at the bottom */
+  /* Input */
 
   .ai-input-area {
     gap: 8px;
@@ -619,6 +641,8 @@
     width: 44px;
     height: 44px;
   }
+
+  /* Disclaimer */
 
   .ai-disclaimer {
     padding: 0 10px 12px;
