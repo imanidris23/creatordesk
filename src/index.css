@@ -4325,12 +4325,3 @@ a:focus-visible {
     z-index: 20;
   }
 }
-@media (max-width: 850px) {
-  .mobile-bottom-nav {
-    transition: background 0.25s ease;
-  }
-
-  .mobile-bottom-nav.sidebar-behind {
-    background: rgba(30, 27, 40, 0.12);
-  }
-}
