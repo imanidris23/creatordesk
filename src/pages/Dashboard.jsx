@@ -1,4 +1,12 @@
-import { ArrowUpRight, Clock, Package, Play, Plus } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock,
+  Package,
+  Play,
+  Plus,
+  AlertCircle,
+  Target,
+} from "lucide-react";
 
 import PageTitle from "../components/PageTitle";
 import Badge from "../components/Badge";
@@ -13,21 +21,67 @@ export default function Dashboard({
   postedFor,
   go,
   onLog,
+  onAddSample,
 }) {
-  const recentContent = [...content]
+  // Get today's date using the local timezone
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  // Only count content whose posting date has arrived
+  const postedContent = content.filter(
+    (item) => !item.postingDate || item.postingDate <= today,
+  );
+
+  // Count posted videos linked to each sample
+  const postedForSample = (sampleId) =>
+    postedContent.filter((item) => item.sampleId === sampleId).length;
+
+  // Samples with no posted videos at all
+  const pendingFulfilment = samples.filter(
+    (sample) => postedForSample(sample.id) === 0,
+  ).length;
+
+  // Total videos still needed to fulfil all sample requirements
+  const videosStillNeeded = samples.reduce((total, sample) => {
+    const deliverables = Number(sample.deliverables || 1);
+    const posted = postedForSample(sample.id);
+
+    return total + Math.max(deliverables - posted, 0);
+  }, 0);
+
+  const recentContent = [...postedContent]
     .sort((a, b) => (b.postingDate || "").localeCompare(a.postingDate || ""))
     .slice(0, 5);
 
   const metrics = [
     {
+      label: "Pending fulfilment",
+      value: pendingFulfilment,
+      icon: AlertCircle,
+      description: "Samples with no videos posted",
+      highlight: true,
+    },
+    {
+      label: "Videos still needed",
+      value: videosStillNeeded,
+      icon: Target,
+      description: "Remaining sample deliverables",
+    },
+    {
       label: "Total samples",
       value: totals.samples,
       icon: Package,
+      description: "All product collaborations",
     },
     {
       label: "Videos posted",
-      value: totals.videos,
+      value: postedContent.length,
       icon: Play,
+      description: "Published content",
     },
   ];
 
@@ -38,25 +92,38 @@ export default function Dashboard({
         title="Dashboard"
         text="A quick overview of your TikTok affiliate journey."
         action={
-          <button className="primary-button" onClick={onLog}>
-            <Plus size={16} />
-            Log content
-          </button>
+          <div className="dashboard-actions">
+            <button className="secondary-button" onClick={onAddSample}>
+              <Plus size={16} />
+              Add sample
+            </button>
+
+            <button className="primary-button" onClick={onLog}>
+              <Plus size={16} />
+              Log content
+            </button>
+          </div>
         }
       />
 
-      <div className="metric-grid">
+      <div className="metric-grid dashboard-metrics">
         {metrics.map((metric) => {
           const Icon = metric.icon;
 
           return (
-            <div className="metric-card" key={metric.label}>
+            <div
+              className={`metric-card ${
+                metric.highlight ? "metric-card-highlight" : ""
+              }`}
+              key={metric.label}
+            >
               <div className="metric-icon">
                 <Icon size={20} />
               </div>
 
               <p>{metric.label}</p>
               <h2>{metric.value}</h2>
+              <span className="metric-description">{metric.description}</span>
             </div>
           );
         })}
@@ -161,12 +228,12 @@ export default function Dashboard({
         <div className="overview-row">
           <div>
             <span>Active samples</span>
-            <strong>{samples.length}</strong>
+            <strong>{pendingFulfilment}</strong>
           </div>
 
           <div>
             <span>Posted videos</span>
-            <strong>{content.length}</strong>
+            <strong>{postedContent.length}</strong>
           </div>
 
           <div>

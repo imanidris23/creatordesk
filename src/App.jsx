@@ -540,6 +540,7 @@ function AppLayout() {
                   postedFor={todayPosts}
                   go={(page) => navigate(`/${page}`)}
                   onLog={() => openForm("content")}
+                  onAddSample={() => openForm("sample")}
                 />
               }
             />
