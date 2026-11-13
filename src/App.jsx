@@ -65,12 +65,24 @@ const sidebarNavigation = [
   { name: "Appearance", path: "/appearance", icon: Palette },
 ];
 
-// Mobile bottom navigation
-const bottomNavigation = [
-  { name: "Home", path: "/", icon: Home },
-  { name: "Samples", path: "/samples", icon: Package },
-  { name: "Content", path: "/content", icon: Play },
-];
+{/* Mobile bottom navigation */}
+{!sidebarOpen && (
+  <nav className="mobile-bottom-nav">
+    {bottomNavigation.map((item) => {
+      const Icon = item.icon;
+      return (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          end={item.path === "/"}
+        >
+          <Icon size={21} />
+          <span>{item.name}</span>
+        </NavLink>
+      );
+    })}
+  </nav>
+)}
 
 // Authentication loading screen
 function AuthLoading() {

@@ -4294,3 +4294,11 @@ a:focus-visible {
   background: #292633;
   border-color: #494354;
 }
+
+@media (max-width: 850px) {
+  .sidebar nav a[href="/"],
+  .sidebar nav a[href="/samples"],
+  .sidebar nav a[href="/content"] {
+    display: none;
+  }
+}
