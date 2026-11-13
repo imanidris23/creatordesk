@@ -35,6 +35,11 @@ export default async function handler(req, res) {
       });
     }
   } catch (error) {
+    console.error("Firebase token verification failed:", {
+      code: error.code,
+      message: error.message,
+    });
+
     return res.status(401).json({
       error: "Invalid or expired login session.",
     });
