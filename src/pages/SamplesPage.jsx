@@ -6,6 +6,14 @@ import Badge from "../components/Badge";
 import Empty from "../components/Empty";
 import { shortDate, daysTo } from "../utils/helpers";
 
+const getSavedPreference = (key, fallback) => {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : fallback;
+  } catch {
+    return fallback;
+  }
+};
 export default function SamplesPage({
   samples,
   postedFor,
@@ -15,8 +23,24 @@ export default function SamplesPage({
   onExport,
 }) {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("All");
-  const [sort, setSort] = useState("deadline");
+
+  const [status, setStatus] = useState(() =>
+    getSavedPreference("creatordesk-samples-status", "All"),
+  );
+
+  const [sort, setSort] = useState(() =>
+    getSavedPreference("creatordesk-samples-sort", "deadline"),
+  );
+
+  const updateStatus = (value) => {
+    setStatus(value);
+    localStorage.setItem("creatordesk-samples-status", JSON.stringify(value));
+  };
+
+  const updateSort = (value) => {
+    setSort(value);
+    localStorage.setItem("creatordesk-samples-sort", JSON.stringify(value));
+  };
 
   const getSampleStatus = (sample) => {
     const posted = postedFor(sample.id);
@@ -118,14 +142,14 @@ export default function SamplesPage({
           />
         </div>
 
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select value={status} onChange={(e) => updateStatus(e.target.value)}>
           <option>All</option>
           <option>Pending</option>
           <option>Completed</option>
           <option>Overdue</option>
         </select>
 
-        <select value={sort} onChange={(e) => setSort(e.target.value)}>
+        <select value={sort} onChange={(e) => updateSort(e.target.value)}>
           <option value="deadline">Sort by deadline</option>
           <option value="newest">Newest received</option>
           <option value="name">Product name</option>

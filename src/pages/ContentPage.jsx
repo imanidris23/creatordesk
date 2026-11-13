@@ -6,6 +6,15 @@ import Badge from "../components/Badge";
 import Empty from "../components/Empty";
 import { shortDate } from "../utils/helpers";
 
+const getSavedPreference = (key, fallback) => {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 export default function ContentPage({
   content,
   samples,
@@ -15,8 +24,18 @@ export default function ContentPage({
   onToggleFyp,
 }) {
   const [search, setSearch] = useState("");
-  const [fypFilter, setFypFilter] = useState("All");
 
+  const [fypFilter, setFypFilter] = useState(() =>
+    getSavedPreference("creatordesk-content-fyp-filter", "All"),
+  );
+  const updateFypFilter = (value) => {
+    setFypFilter(value);
+
+    localStorage.setItem(
+      "creatordesk-content-fyp-filter",
+      JSON.stringify(value),
+    );
+  };
   // Get today's local date
   const now = new Date();
   const today = [
@@ -92,7 +111,7 @@ export default function ContentPage({
 
         <select
           value={fypFilter}
-          onChange={(e) => setFypFilter(e.target.value)}
+          onChange={(e) => updateFypFilter(e.target.value)}
         >
           <option>All</option>
           <option>FYP</option>
