@@ -29,8 +29,18 @@ export const shortDate = (value) =>
       })
     : "-";
 
-export const daysTo = (value) =>
-  Math.ceil((new Date(`${value}T23:59:59`).getTime() - Date.now()) / 86400000);
+export const daysTo = (value) => {
+  if (!value) return null;
+
+  const [year, month, day] = value.split("-").map(Number);
+
+  const deadline = Date.UTC(year, month - 1, day);
+
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+  return Math.round((deadline - today) / 86400000);
+};
 
 export const download = (blob, name) => {
   const url = URL.createObjectURL(blob);
