@@ -13,6 +13,8 @@ import {
 import { useAuth } from "../context/AuthContext.jsx";
 
 import "./AIAssistantPage.css";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIAssistantPage({ samples, content }) {
   const { user } = useAuth();
@@ -206,7 +208,15 @@ export default function AIAssistantPage({ samples, content }) {
                   )}
                 </div>
 
-                <div className="ai-message-text">{message.text}</div>
+                <div className="ai-message-text">
+                  {message.role === "assistant" ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.text}
+                    </ReactMarkdown>
+                  ) : (
+                    message.text
+                  )}
+                </div>
               </div>
             ))
           )}
