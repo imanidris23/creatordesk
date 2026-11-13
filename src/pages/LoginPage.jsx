@@ -35,7 +35,15 @@ export default function LoginPage() {
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  useEffect(() => {
+    const isGoogleUser = user?.providerData?.some(
+      (provider) => provider.providerId === "google.com",
+    );
 
+    if (user && !profile && isGoogleUser) {
+      setGoogleSetup(true);
+    }
+  }, [user, profile]);
   // Convert Firebase errors into readable messages
   const getErrorMessage = (err) => {
     const messages = {
@@ -62,16 +70,6 @@ export default function LoginPage() {
 
       "auth/unauthorized-domain": "This domain is not authorized in Firebase.",
     };
-
-    useEffect(() => {
-      const isGoogleUser = user?.providerData?.some(
-        (provider) => provider.providerId === "google.com",
-      );
-
-      if (user && !profile && isGoogleUser) {
-        setGoogleSetup(true);
-      }
-    }, [user, profile]);
 
     return messages[err.code] || "Something went wrong. Please try again.";
   };
