@@ -13,15 +13,6 @@ export default function AnalyticsPage({ samples, content }) {
 
   const fypRate = totalVideos ? Math.round((fypVideos / totalVideos) * 100) : 0;
 
-  const topVideos = [...content]
-    .sort((a, b) => {
-      const aFyp = a.fyp === true || a.fyp === "Yes" ? 1 : 0;
-      const bFyp = b.fyp === true || b.fyp === "Yes" ? 1 : 0;
-
-      return bFyp - aFyp;
-    })
-    .slice(0, 5);
-
   const topProducts = samples
     .map((sample) => {
       const linkedVideos = content.filter(
@@ -34,6 +25,33 @@ export default function AnalyticsPage({ samples, content }) {
       };
     })
     .sort((a, b) => b.videos - a.videos)
+    .slice(0, 5);
+
+  // Group video performance by product
+  const topPerformingProducts = samples
+    .map((sample) => {
+      const linkedVideos = content.filter(
+        (item) => item.sampleId === sample.id,
+      );
+
+      const productFyp = linkedVideos.filter(
+        (item) => item.fyp === true || item.fyp === "Yes",
+      ).length;
+
+      return {
+        ...sample,
+        totalVideos: linkedVideos.length,
+        fypVideos: productFyp,
+      };
+    })
+    .filter((product) => product.totalVideos > 0)
+    .sort((a, b) => {
+      if (b.fypVideos !== a.fypVideos) {
+        return b.fypVideos - a.fypVideos;
+      }
+
+      return b.totalVideos - a.totalVideos;
+    })
     .slice(0, 5);
 
   return (
@@ -130,11 +148,11 @@ export default function AnalyticsPage({ samples, content }) {
         <div className="section-heading">
           <div>
             <h2>Top performing videos</h2>
-            <p>Videos that reached FYP are shown first</p>
+            <p>Ranked by number of FYP videos per product</p>
           </div>
         </div>
 
-        {topVideos.length === 0 ? (
+        {topPerformingProducts.length === 0 ? (
           <Empty
             icon={Play}
             title="No videos to analyse"
@@ -146,27 +164,21 @@ export default function AnalyticsPage({ samples, content }) {
               <thead>
                 <tr>
                   <th>Rank</th>
-                  <th>Video</th>
-                  <th>FYP</th>
+                  <th>Product</th>
+                  <th>Total Videos</th>
+                  <th>FYP / Total</th>
                 </tr>
               </thead>
 
               <tbody>
-                {topVideos.map((item, index) => (
-                  <tr key={item.id}>
+                {topPerformingProducts.map((product, index) => (
+                  <tr key={product.id}>
                     <td>#{index + 1}</td>
-                    <td>{item.title || "Untitled video"}</td>
+                    <td>{product.product}</td>
+                    <td>{product.totalVideos}</td>
                     <td>
-                      <Badge
-                        tone={
-                          item.fyp === true || item.fyp === "Yes"
-                            ? "green"
-                            : "gray"
-                        }
-                      >
-                        {item.fyp === true || item.fyp === "Yes"
-                          ? "FYP"
-                          : "Not FYP"}
+                      <Badge tone={product.fypVideos > 0 ? "green" : "gray"}>
+                        {product.fypVideos}/{product.totalVideos}
                       </Badge>
                     </td>
                   </tr>
