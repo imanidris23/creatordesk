@@ -233,6 +233,29 @@ function AppLayout() {
   };
 
   // Save content
+  const saveContent = async (formData) => {
+    const record = {
+      ...formData,
+      id: formData.id || uid(),
+      platform: "TikTok",
+      fyp: formData.fyp === true || formData.fyp === "Yes" ? "Yes" : "No",
+    };
+
+    try {
+      await saveUserRecord(user.uid, "content", record);
+
+      setContent((previous) =>
+        formData.id
+          ? previous.map((item) => (item.id === record.id ? record : item))
+          : [...previous, record],
+      );
+
+      setActiveForm(null);
+    } catch (error) {
+      console.error("Failed to save content:", error);
+      alert("Unable to save content. Please try again.");
+    }
+  };
 
   // Toggle FYP status
   const toggleFyp = async (item) => {
