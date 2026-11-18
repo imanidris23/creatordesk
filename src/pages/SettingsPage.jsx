@@ -1,6 +1,16 @@
 import { useTheme } from "../context/ThemeContext.jsx";
-import { Check, RotateCcw, Sun, Moon, Palette } from "lucide-react";
+import {
+  Check,
+  RotateCcw,
+  Sun,
+  Moon,
+  Palette,
+  UserRound,
+  Bell,
+} from "lucide-react";
 
+import AccountPanel from "../components/AccountPanel.jsx";
+import AccountPanelNotifications from "../components/AccountPanelNotifications.jsx";
 const presets = [
   {
     id: "lavender",
@@ -60,11 +70,49 @@ export default function AppearancePage() {
     <div className="page">
       <div className="page-title">
         <div>
-          <span className="eyebrow">PERSONALIZATION</span>
-          <h1>Appearance</h1>
-          <p>Customize the look and feel of your CreatorDesk workspace.</p>
+          <span className="eyebrow">PREFERENCES</span>
+          <h1>Settings</h1>
+          <p>Manage your account, notifications and workspace preferences.</p>
         </div>
       </div>
+
+      {/* Account settings */}
+      <section className="panel theme-section">
+        <div className="section-heading">
+          <div>
+            <h2>
+              <UserRound size={19} /> Account & Cloud Sync
+            </h2>
+            <p>Manage your account and cloud synchronisation.</p>
+          </div>
+        </div>
+
+        <AccountPanel />
+      </section>
+
+      {/* Notification settings */}
+      <section className="panel theme-section">
+        <div className="section-heading">
+          <div>
+            <h2>
+              <Bell size={19} /> Notifications
+            </h2>
+            <p>Manage reminders on your Android device.</p>
+          </div>
+        </div>
+
+        <AccountPanelNotifications />
+      </section>
+
+      {/* Appearance settings */}
+      <section className="theme-section">
+        <div className="section-heading">
+          <div>
+            <h2>Appearance</h2>
+            <p>Customize the look and feel of your CreatorDesk workspace.</p>
+          </div>
+        </div>
+      </section>
 
       <section className="panel theme-section">
         <div className="section-heading">

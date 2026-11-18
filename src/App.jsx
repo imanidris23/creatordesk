@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BrowserRouter,
   NavLink,
   Route,
   Routes,
   useNavigate,
+  useLocation,
   Navigate,
 } from "react-router";
 
@@ -24,6 +25,7 @@ import {
   Home,
   UsersRound,
   Sparkles,
+  Settings,
 } from "lucide-react";
 
 import { useAuth } from "./context/AuthContext.jsx";
@@ -32,6 +34,9 @@ import {
   saveUserRecord,
   deleteUserRecord,
 } from "./services/firestoreService.js";
+
+import { createNotification } from "./services/notificationService.js";
+import NotificationBell from "./components/NotificationBell.jsx";
 
 // Components
 import AccountPanel from "./components/AccountPanel.jsx";
@@ -44,7 +49,7 @@ import AnalyticsPage from "./pages/AnalyticsPage.jsx";
 import CalendarPage from "./pages/CalendarPage.jsx";
 import WithdrawalsPage from "./pages/WithdrawalsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
-import AppearancePage from "./pages/AppearancePage.jsx";
+import AppearancePage from "./pages/SettingsPage.jsx";
 import CollaboratorsPage from "./pages/CollaboratorsPage.jsx";
 import AIAssistantPage from "./pages/AIAssistantPage.jsx";
 
@@ -65,7 +70,7 @@ const sidebarNavigation = [
   { name: "Analytics", path: "/analytics", icon: ChartNoAxesCombined },
   { name: "Calendar", path: "/calendar", icon: CalendarDays },
   { name: "Withdrawals", path: "/withdrawals", icon: Wallet },
-  { name: "Appearance", path: "/appearance", icon: Palette },
+  { name: "Settings", path: "/settings", icon: Settings },
   { name: "AI Assistant", path: "/ai", icon: Sparkles },
 ];
 
@@ -88,10 +93,55 @@ function AuthLoading() {
   );
 }
 
+// Determine whether a content record is Posted or Scheduled
+function getContentStatus(item, now = Date.now()) {
+  // Existing records and manually published videos are Posted
+  if (item.postingMethod !== "scheduled") {
+    return "Posted";
+  }
+
+  // A scheduled record needs both a date and time
+  if (!item.postingDate || !item.postingTime) {
+    return "Scheduled";
+  }
+
+  // TikTok scheduling time is interpreted as Malaysia time (UTC+8)
+  const scheduledTime = new Date(
+    `${item.postingDate}T${item.postingTime}:00+08:00`,
+  ).getTime();
+
+  return scheduledTime <= now ? "Posted" : "Scheduled";
+}
+
+// Create an in-app notification without interrupting record saving
+async function sendUserNotification(uid, notification) {
+  try {
+    await createNotification(uid, notification);
+  } catch (error) {
+    console.error("Failed to create notification:", error);
+  }
+}
+
 // Protected application layout
 function AppLayout() {
   const { user, profile, authLoading, firebaseReady } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Return to Dashboard when starting a new browser session
+  useEffect(() => {
+    const sessionStarted = sessionStorage.getItem(
+      "creatordesk-session-started",
+    );
+
+    if (!sessionStarted) {
+      sessionStorage.setItem("creatordesk-session-started", "true");
+
+      if (location.pathname !== "/") {
+        navigate("/", { replace: true });
+      }
+    }
+  }, []);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -102,8 +152,22 @@ function AppLayout() {
 
   const [dataLoading, setDataLoading] = useState(true);
 
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
   const [activeForm, setActiveForm] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Remember previous content statuses to detect scheduled videos becoming Posted
+  const previousContentStatuses = useRef(null);
+
+  // Refresh the current time every 30 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 30000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Load the user's data from Firestore
   useEffect(() => {
@@ -151,6 +215,41 @@ function AppLayout() {
     };
   }, [user?.uid]);
 
+  // Detect when a scheduled video becomes Posted
+  useEffect(() => {
+    if (dataLoading || !user?.uid) return;
+
+    const currentStatuses = new Map(
+      content.map((item) => [item.id, getContentStatus(item, currentTime)]),
+    );
+
+    // Set initial statuses without sending notifications for old records
+    if (previousContentStatuses.current === null) {
+      previousContentStatuses.current = currentStatuses;
+      return;
+    }
+
+    content.forEach((item) => {
+      const previousStatus = previousContentStatuses.current.get(item.id);
+      const currentStatus = currentStatuses.get(item.id);
+
+      if (previousStatus === "Scheduled" && currentStatus === "Posted") {
+        sendUserNotification(user.uid, {
+          title: "Scheduled video posted",
+          message: `${item.title || item.product || "Your video"} is now marked as posted.`,
+          type: "content_posted",
+        });
+      }
+    });
+
+    previousContentStatuses.current = currentStatuses;
+  }, [content, currentTime, dataLoading, user?.uid]);
+
+  // Reset status tracking when the signed-in user changes
+  useEffect(() => {
+    previousContentStatuses.current = null;
+  }, [user?.uid]);
+
   // Wait for Firebase authentication
   if (authLoading) {
     return <AuthLoading />;
@@ -177,19 +276,19 @@ function AppLayout() {
     return <AuthLoading />;
   }
 
-  // Count only content whose posting date has arrived
+  // Count only videos that have actually reached their posting time
   const postedFor = (sampleId) => {
-    const today = iso(new Date());
-
     return content.filter(
       (item) =>
         item.sampleId === sampleId &&
-        (!item.postingDate || item.postingDate <= today),
+        getContentStatus(item, currentTime) === "Posted",
     ).length;
   };
 
   // Save sample
   const saveSample = async (formData) => {
+    const isNewSample = !formData.id;
+
     const record = {
       ...formData,
       id: formData.id || uid(),
@@ -201,10 +300,19 @@ function AppLayout() {
       await saveUserRecord(user.uid, "samples", record);
 
       setSamples((previous) =>
-        formData.id
-          ? previous.map((item) => (item.id === record.id ? record : item))
-          : [...previous, record],
+        isNewSample
+          ? [...previous, record]
+          : previous.map((item) => (item.id === record.id ? record : item)),
       );
+
+      // Notify only when a new sample is added
+      if (isNewSample) {
+        await sendUserNotification(user.uid, {
+          title: "New sample added",
+          message: `${record.product || "A new product"} has been added to your sample tracker.`,
+          type: "sample_added",
+        });
+      }
 
       setActiveForm(null);
     } catch (error) {
@@ -215,6 +323,8 @@ function AppLayout() {
 
   // Delete sample
   const deleteSample = async (id) => {
+    const sample = samples.find((item) => item.id === id);
+
     if (
       !window.confirm(
         "Delete this sample? Its linked content records will remain.",
@@ -226,6 +336,13 @@ function AppLayout() {
       await deleteUserRecord(user.uid, "samples", id);
 
       setSamples((previous) => previous.filter((item) => item.id !== id));
+
+      // Notify after successful deletion
+      await sendUserNotification(user.uid, {
+        title: "Sample deleted",
+        message: `${sample?.product || "A sample"} has been removed from your sample tracker.`,
+        type: "sample_deleted",
+      });
     } catch (error) {
       console.error("Failed to delete sample:", error);
       alert("Unable to delete sample.");
@@ -234,35 +351,99 @@ function AppLayout() {
 
   // Save content
   const saveContent = async (formData) => {
-    const record = {
-      ...formData,
-      id: formData.id || uid(),
-      platform: "TikTok",
-      fyp: formData.fyp === true || formData.fyp === "Yes" ? "Yes" : "No",
-    };
+    let createdSample = null;
+
+    const isNewContent = !formData.id;
 
     try {
+      let sampleId = formData.sampleId || "";
+
+      // Create a sample record when logging a new product
+      if (formData.isNewProduct && !sampleId) {
+        createdSample = {
+          id: uid(),
+          product: formData.product.trim(),
+          brand: formData.brand.trim(),
+          category: formData.category,
+          platform: "TikTok",
+          received: "",
+          deadline: "",
+          deliverables: 1,
+          deadlineScope: "first",
+        };
+
+        await saveUserRecord(user.uid, "samples", createdSample);
+        sampleId = createdSample.id;
+      }
+
+      // Prepare the content record
+      const record = {
+        ...formData,
+        id: formData.id || uid(),
+        sampleId,
+        platform: "TikTok",
+        postingMethod: formData.postingMethod || "manual",
+        postingTime: formData.postingTime || "",
+        fyp: formData.fyp === true || formData.fyp === "Yes" ? "Yes" : "No",
+        url: formData.url?.trim() || "",
+      };
+
+      // Save content to Firestore
       await saveUserRecord(user.uid, "content", record);
 
+      // Update local samples
+      if (createdSample) {
+        setSamples((previous) => [...previous, createdSample]);
+
+        await sendUserNotification(user.uid, {
+          title: "New sample added",
+          message: `${createdSample.product} has been added to your sample tracker.`,
+          type: "sample_added",
+        });
+      }
+
+      // Update local content
       setContent((previous) =>
-        formData.id
-          ? previous.map((item) => (item.id === record.id ? record : item))
-          : [...previous, record],
+        isNewContent
+          ? [...previous, record]
+          : previous.map((item) => (item.id === record.id ? record : item)),
       );
+
+      // Notify only when creating new content
+      if (isNewContent) {
+        const status = getContentStatus(record);
+
+        await sendUserNotification(user.uid, {
+          title: status === "Scheduled" ? "Video scheduled" : "Content logged",
+          message:
+            status === "Scheduled"
+              ? `${record.title || record.product || "Your video"} has been scheduled successfully.`
+              : `${record.title || record.product || "Your content"} has been logged successfully.`,
+          type: status === "Scheduled" ? "content_scheduled" : "content_logged",
+        });
+      }
 
       setActiveForm(null);
     } catch (error) {
       console.error("Failed to save content:", error);
+
+      // Roll back the sample if saving its content failed
+      if (createdSample) {
+        try {
+          await deleteUserRecord(user.uid, "samples", createdSample.id);
+        } catch (rollbackError) {
+          console.error("Failed to remove incomplete sample:", rollbackError);
+        }
+      }
+
       alert("Unable to save content. Please try again.");
     }
   };
 
   // Toggle FYP status
   const toggleFyp = async (item) => {
-    const today = iso(new Date());
-
-    // Only allow FYP updates after the posting date arrives
-    if (item.postingDate && item.postingDate > today) return;
+    // Only allow FYP updates after the video is Posted
+    if (getContentStatus(item, currentTime) !== "Posted") return;
 
     const reachedFyp = item.fyp === true || item.fyp === "Yes";
 
@@ -285,14 +466,78 @@ function AppLayout() {
     }
   };
 
+  // Add TikTok video link to an existing content record
+  const addContentLink = async (id, url) => {
+    const trimmedUrl = url.trim();
+
+    // Validate the URL
+    try {
+      const parsedUrl = new URL(trimmedUrl);
+
+      const isTikTok =
+        parsedUrl.protocol === "https:" &&
+        (parsedUrl.hostname === "tiktok.com" ||
+          parsedUrl.hostname.endsWith(".tiktok.com"));
+
+      if (!isTikTok) {
+        alert("Please enter a valid TikTok video link.");
+        return;
+      }
+    } catch {
+      alert("Please enter a valid URL.");
+      return;
+    }
+
+    const existingRecord = content.find((item) => item.id === id);
+
+    if (!existingRecord) {
+      alert("Content record not found.");
+      return;
+    }
+
+    const updatedRecord = {
+      ...existingRecord,
+      url: trimmedUrl,
+    };
+
+    try {
+      await saveUserRecord(user.uid, "content", updatedRecord);
+
+      setContent((previous) =>
+        previous.map((item) => (item.id === id ? updatedRecord : item)),
+      );
+
+      // Notify only when a link is added for the first time
+      if (!existingRecord.url) {
+        await sendUserNotification(user.uid, {
+          title: "TikTok link added",
+          message: `Your TikTok link for ${existingRecord.title || existingRecord.product || "your content"} has been saved.`,
+          type: "link_added",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to save TikTok link:", error);
+      alert("Unable to save TikTok link. Please try again.");
+    }
+  };
+
   // Delete content
   const deleteContent = async (id) => {
+    const item = content.find((record) => record.id === id);
+
     if (!window.confirm("Delete this content record?")) return;
 
     try {
       await deleteUserRecord(user.uid, "content", id);
 
       setContent((previous) => previous.filter((item) => item.id !== id));
+
+      // Notify after successful deletion
+      await sendUserNotification(user.uid, {
+        title: "Content deleted",
+        message: `${item?.title || item?.product || "A content record"} has been removed from your content tracker.`,
+        type: "content_deleted",
+      });
     } catch (error) {
       console.error("Failed to delete content:", error);
       alert("Unable to delete content.");
@@ -301,6 +546,8 @@ function AppLayout() {
 
   // Save withdrawal
   const saveWithdrawal = async (formData) => {
+    const isNewWithdrawal = !formData.id;
+
     const record = {
       ...formData,
       id: formData.id || uid(),
@@ -311,10 +558,19 @@ function AppLayout() {
       await saveUserRecord(user.uid, "withdrawals", record);
 
       setWithdrawals((previous) =>
-        formData.id
-          ? previous.map((item) => (item.id === record.id ? record : item))
-          : [...previous, record],
+        isNewWithdrawal
+          ? [...previous, record]
+          : previous.map((item) => (item.id === record.id ? record : item)),
       );
+
+      // Notify only when a new withdrawal is recorded
+      if (isNewWithdrawal) {
+        await sendUserNotification(user.uid, {
+          title: "Withdrawal recorded",
+          message: "Your new withdrawal has been saved successfully.",
+          type: "withdrawal_added",
+        });
+      }
 
       setActiveForm(null);
     } catch (error) {
@@ -432,9 +688,11 @@ function AppLayout() {
     .sort((a, b) => (a.deadline || "").localeCompare(b.deadline || ""))
     .slice(0, 5);
 
-  // Today's posts
+  // Count today's videos only when they are Posted
   const todayPosts = content.filter(
-    (item) => item.postingDate === iso(new Date()),
+    (item) =>
+      item.postingDate === iso(new Date()) &&
+      getContentStatus(item, currentTime) === "Posted",
   ).length;
 
   // Open forms
@@ -504,8 +762,6 @@ function AppLayout() {
             <span>●</span>
             Your workspace is ready
           </div>
-
-          <AccountPanel />
         </div>
       </aside>
 
@@ -537,6 +793,9 @@ function AppLayout() {
             <ChevronRight size={14} />
             <strong>Workspace</strong>
           </div>
+
+          {/* Notification bell */}
+          <NotificationBell uid={user.uid} />
         </header>
 
         <div className="page-wrap">
@@ -586,6 +845,7 @@ function AppLayout() {
                   onEdit={(item) => openForm("content", item)}
                   onDelete={deleteContent}
                   onToggleFyp={toggleFyp}
+                  onAddLink={addContentLink}
                 />
               }
             />
@@ -627,7 +887,7 @@ function AppLayout() {
               }
             />
 
-            <Route path="/appearance" element={<AppearancePage />} />
+            <Route path="/settings" element={<AppearancePage />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

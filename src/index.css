@@ -4722,3 +4722,711 @@ a:focus-visible {
   outline: 2px solid var(--purple);
   outline-offset: 3px;
 }
+.content-view-toggle {
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  border-top: 1px solid var(--line);
+}
+.content-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.pagination-info {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-controls span {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.icon-button.link-needed {
+  background: var(--hover-bg);
+  color: var(--icon);
+  border: 1px solid var(--line);
+}
+
+.icon-button.link-needed:hover:not(:disabled) {
+  background: var(--active-bg);
+  color: var(--text);
+}
+
+.icon-button.link-needed:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.form-error {
+  color: #d05b5b;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Calendar top row */
+.calendar-top-grid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+/* Today's date card */
+.today-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.today-summary-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.today-eyebrow {
+  display: block;
+  color: var(--purple);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 7px;
+}
+
+.today-summary-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--heading);
+}
+
+.today-date-number {
+  min-width: 88px;
+  min-height: 88px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--active-bg);
+  border: 1px solid var(--purple);
+  border-radius: 16px;
+}
+
+.today-date-number strong {
+  font-size: 38px;
+  line-height: 1;
+  color: var(--purple);
+}
+
+.today-date-number span {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--purple);
+}
+
+/* Today's statistics */
+.today-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.today-summary-stats > div {
+  padding: 13px 10px;
+  background: var(--hover-bg);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.today-summary-stats strong {
+  font-size: 22px;
+  color: var(--heading);
+}
+
+.today-summary-stats span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Today's video list */
+.today-post-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.today-post-heading h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--heading);
+}
+
+.today-post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.today-post-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.today-post-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--active-bg);
+  color: var(--purple);
+  border-radius: 10px;
+}
+
+.today-post-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.today-post-info strong {
+  font-size: 12px;
+  color: var(--heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-post-info span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.today-more-button {
+  align-self: flex-start;
+}
+
+/* Daily goal card */
+.today-goal-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.today-goal-card .goal-display {
+  margin-top: 25px;
+}
+
+.today-goal-card .progress-track {
+  margin-top: 18px;
+}
+
+.today-goal-card .goal-control {
+  margin-top: 25px;
+}
+
+/* Monthly calendar full width */
+.calendar-month-card {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* Responsive layout */
+@media (max-width: 760px) {
+  .calendar-top-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .today-date-number {
+    min-width: 76px;
+    min-height: 76px;
+  }
+
+  .today-date-number strong {
+    font-size: 32px;
+  }
+
+  .calendar-day {
+    min-height: 70px;
+    padding: 7px;
+  }
+
+  .calendar-grid {
+    gap: 5px;
+  }
+}
+
+/* Notification bell */
+.notification-wrapper {
+  position: relative;
+  margin-left: auto;
+  z-index: 100;
+}
+
+.notification-trigger {
+  position: relative;
+}
+
+.notification-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: #ef4444;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  border: 2px solid var(--surface, white);
+}
+
+.notification-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+  border: 0;
+}
+
+.notification-panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 370px;
+  max-width: calc(100vw - 30px);
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface, white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.notification-panel-header {
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+
+.notification-panel-header h3 {
+  margin: 0 0 5px;
+  color: var(--heading);
+  font-size: 16px;
+}
+
+.notification-panel-header span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.mark-all-read {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notification-list {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 15px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notification-item:hover {
+  background: var(--hover-bg);
+}
+
+.notification-item.unread {
+  background: var(--active-bg);
+}
+
+.notification-item-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--surface, white);
+  color: var(--purple);
+}
+
+.notification-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notification-item-title strong {
+  color: var(--heading);
+  font-size: 12px;
+}
+
+.notification-unread-dot {
+  flex-shrink: 0;
+  fill: var(--purple);
+  color: var(--purple);
+}
+
+.notification-item-content p {
+  margin: 5px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.notification-item-content > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.notification-delete {
+  padding: 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.notification-delete:hover {
+  background: var(--hover-bg);
+  color: #ef4444;
+}
+
+.notification-empty {
+  min-height: 160px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.notification-empty strong {
+  color: var(--heading);
+  font-size: 13px;
+}
+
+@media (max-width: 480px) {
+  .notification-panel {
+    position: fixed;
+    top: 65px;
+    right: 12px;
+    width: calc(100vw - 24px);
+    max-height: 75vh;
+  }
+}
+.notification-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mark-all-read {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--purple);
+  cursor: pointer;
+}
+
+.mark-all-read:hover {
+  background: var(--hover-bg);
+}
+/* Bell and unread badge */
+.notification-trigger {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: #e85b75;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border: 2px solid white;
+}
+
+/* Notification panel */
+.notification-panel {
+  display: flex;
+  flex-direction: column;
+  height: 460px;
+  max-height: min(460px, calc(100vh - 100px));
+  overflow: hidden;
+}
+
+/* Header stays in place */
+.notification-panel-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notification-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mark-all-read {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--purple);
+  cursor: pointer;
+}
+
+.mark-all-read:hover {
+  background: var(--hover-bg);
+}
+
+.clear-all-button {
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #e16b78;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.clear-all-button:hover {
+  background: rgba(225, 107, 120, 0.1);
+}
+
+/* ================================
+   NOTIFICATION PANEL
+================================ */
+
+/* Only the notification list scrolls */
+.notification-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Keep empty state centered */
+.notification-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+/* ================================
+   ACCOUNT CONTROLS
+================================ */
+
+.account-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ================================
+   PUSH NOTIFICATIONS
+================================ */
+
+.push-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 13px;
+}
+
+.push-settings-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.push-settings-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--hover-bg, #f4f0fa);
+  color: var(--purple, #8063bd);
+}
+
+.push-settings-info strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.push-settings-info p {
+  margin: 5px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary, #888);
+}
+
+.push-settings-info small {
+  font-size: 11px;
+  color: var(--text-secondary, #888);
+}
+
+/* Notification button */
+.push-settings .primary-button {
+  font-family: inherit;
+  font-size: 13px;
+}
+
+/* Notification message */
+.push-notification-message {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-color, #51446a);
+}
+
+/* Old sidebar notification button styles, if still used */
+.push-notification-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.push-notification-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color, #e5e0ef);
+  border-radius: 10px;
+  background: var(--card-bg, white);
+  color: var(--text-color, #51446a);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.push-notification-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ================================
+   SETTINGS TYPOGRAPHY
+================================ */
+
+.settings-page {
+  font-size: 13px;
+}
+
+.settings-page .page-title h1 {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.settings-page .page-title p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.settings-page .section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.settings-page .section-heading p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.settings-page button {
+  font-family: inherit;
+}

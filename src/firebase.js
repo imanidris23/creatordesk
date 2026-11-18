@@ -1,7 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,10 +11,12 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-export const firebaseReady = Object.values(firebaseConfig).every(Boolean);
+export const firebaseReady = Object.values(firebaseConfig).every(
+  (value) => typeof value === "string" && value.trim() !== "",
+);
 
-const app = firebaseReady
-  ? getApps().length
+export const app = firebaseReady
+  ? getApps().length > 0
     ? getApps()[0]
     : initializeApp(firebaseConfig)
   : null;
