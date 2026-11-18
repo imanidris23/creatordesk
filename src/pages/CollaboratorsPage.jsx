@@ -15,6 +15,9 @@ import Badge from "../components/Badge";
 
 export default function CollaboratorsPage({ samples, content }) {
   const [search, setSearch] = useState("");
+  const [selectedLetter, setSelectedLetter] = useState("All");
+
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
   const today = new Date();
   const todayString = [
@@ -127,9 +130,17 @@ export default function CollaboratorsPage({ samples, content }) {
       .sort((a, b) => a.brand.localeCompare(b.brand));
   }, [samples, content]);
 
-  const filteredCollaborators = collaborators.filter((item) =>
-    item.brand.toLowerCase().includes(search.trim().toLowerCase()),
-  );
+  const filteredCollaborators = collaborators.filter((item) => {
+    const matchesSearch = item.brand
+      .toLowerCase()
+      .includes(search.trim().toLowerCase());
+
+    const matchesLetter =
+      selectedLetter === "All" ||
+      item.brand.toUpperCase().startsWith(selectedLetter);
+
+    return matchesSearch && matchesLetter;
+  });
 
   const totals = collaborators.reduce(
     (result, item) => ({
@@ -221,7 +232,7 @@ export default function CollaboratorsPage({ samples, content }) {
           </div>
         </div>
 
-        <div className="toolbar">
+        <div className="toolbar collaborator-toolbar">
           <div className="search-box">
             <Search size={17} />
             <input
@@ -229,6 +240,32 @@ export default function CollaboratorsPage({ samples, content }) {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search brands..."
             />
+          </div>
+
+          <div className="alphabet-filter">
+            <button
+              className={selectedLetter === "All" ? "active" : ""}
+              onClick={() => setSelectedLetter("All")}
+            >
+              Show All
+            </button>
+
+            {alphabet.map((letter) => {
+              const hasBrands = collaborators.some((brand) =>
+                brand.brand.toUpperCase().startsWith(letter),
+              );
+
+              return (
+                <button
+                  key={letter}
+                  disabled={!hasBrands}
+                  className={selectedLetter === letter ? "active" : ""}
+                  onClick={() => setSelectedLetter(letter)}
+                >
+                  {letter}
+                </button>
+              );
+            })}
           </div>
         </div>
 
